@@ -2,6 +2,7 @@
   <!--eslint-disable max-len -->
   <li
     class="flex justify-between items-center p-3 pl-6 cursor-pointer transition duration-300 hover:bg-gray-50"
+    :id="`song-id-${song.docID}`"
   >
     <div>
       <router-link
@@ -11,7 +12,7 @@
             id: song.docID
           }
         }"
-        class="font-bold block text-gray-600"
+        class="font-bold block text-gray-600 composition-name"
       >
         {{ song.modifiedName }}
       </router-link>

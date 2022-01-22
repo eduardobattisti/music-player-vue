@@ -84,12 +84,12 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapMutations({
-      toggleAuthModal: (state: any) => state.auth.toggleAuthModal,
-    }),
+    ...mapMutations(['toggleAuthModal']),
   },
   computed: {
-    ...mapState(['authModalShow']),
+    ...mapState({
+      authModalShow: (state: any) => state.auth.authModalShow,
+    }),
   },
 });
 </script>

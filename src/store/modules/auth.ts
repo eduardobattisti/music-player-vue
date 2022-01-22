@@ -7,6 +7,7 @@ export default {
   },
   mutations: {
     toggleAuthModal: (state) => {
+      console.log('aqui');
       state.authModalShow = !state.authModalShow;
     },
     toggleAuth(state): void {
