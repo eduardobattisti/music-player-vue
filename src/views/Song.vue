@@ -33,9 +33,7 @@
         <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
           <!-- Comment Count -->
           <span class="card-title">
-            {{ $tc('song.comment_count', song.commentCount, {
-                count: song.commentCount
-              }) }}
+            {{ t('song.comment_count', song.commentCount) }}
           </span>
           <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
         </div>
@@ -97,10 +95,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState, mapActions, mapGetters } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { songsCollection, commentsCollection, auth } from '@/includes/firebase';
 
 export default defineComponent({
   name: 'Song',
+  setup() {
+    const { t } = useI18n();
+
+    return { t };
+  },
   data() {
     return {
       song: {} as any,

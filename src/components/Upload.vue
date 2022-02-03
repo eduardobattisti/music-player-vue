@@ -43,35 +43,62 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import {
+  defineComponent, ref, reactive, toRefs, onBeforeMount,
+} from 'vue';
 import { storage, auth, songsCollection } from '@/includes/firebase';
+import { IUploadEvent } from '@/models/components/Upload';
 
 export default defineComponent({
   name: 'Upload',
-  data() {
-    return {
-      isDragOver: false,
-      uploads: [] as Array<any>,
-    };
-  },
   props: [
     'addSong',
   ],
-  methods: {
-    upload($event) {
-      this.isDragOver = false;
+  setup(props) {
+    const isDragOver = ref(false);
+    const uploads: Array<any> = reactive([]);
+    const { addSong } = toRefs(props);
 
-      const files = $event.dataTransfer
-        ? [...$event.dataTransfer.files]
-        : [...$event.target.files];
+    onBeforeMount(() => {
+      uploads.forEach((upload) => {
+        upload.task.cancel();
+      });
+    });
 
-      files.forEach((file) => {
+    const cancelUploads = () => {
+      uploads.forEach((upload) => {
+        upload.task.cancel();
+      });
+    };
+
+    const upload = ($event: IUploadEvent) => {
+      isDragOver.value = false;
+      console.log(uploads.values());
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore next-line
+      console.log($event.target.files, 'AQUI!!!');
+      let files: File[] | string[];
+      if ($event instanceof DragEvent) {
+        files = [...$event.dataTransfer.files];
+      } else if ($event instanceof InputEvent) {
+        files = [...($event.target as HTMLInputElement)?.files as FileList];
+      }
+
+      // const files = ($event as DragEvent).dataTransfer
+      //   ? [...($event.dataTransfer as DataTransfer).files as FileList]
+      //   : [...($event.target as HTMLInputElement)?.files as FileList];
+
+      console.log(files);
+
+      files.forEach((file): void => {
+        console.log(file);
         if (file.type !== 'audio/mpeg') {
           return;
         }
 
         if (!navigator.onLine) {
-          this.uploads.push({
+          uploads.push({
             task: {},
             currentProgress: 100,
             name: file.name,
@@ -86,7 +113,7 @@ export default defineComponent({
         const songsRef = storageRef.child(`songs/${file.name}`);
         const task = songsRef.put(file);
 
-        const uploadIndex = this.uploads.push({
+        const uploadIndex = uploads.push({
           task,
           currentProgress: 0,
           name: file.name,
@@ -97,13 +124,13 @@ export default defineComponent({
 
         task.on('state_changed', (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploads[uploadIndex].currentProgress = progress;
+          uploads[uploadIndex].currentProgress = progress;
         },
         // On save error
         (error) => {
-          this.uploads[uploadIndex].variant = 'bg-red-400';
-          this.uploads[uploadIndex].icon = 'fas fa-times';
-          this.uploads[uploadIndex].textClass = 'text-red-400';
+          uploads[uploadIndex].variant = 'bg-red-400';
+          uploads[uploadIndex].icon = 'fas fa-times';
+          uploads[uploadIndex].textClass = 'text-red-400';
           console.log(error);
         },
         // On save success
@@ -131,27 +158,111 @@ export default defineComponent({
             const songRef = await songsCollection.add(song);
             const songSnapshot = await songRef.get();
 
-            this.addSong(songSnapshot);
+            addSong(songSnapshot);
           } catch (error) {
             console.log(error);
           }
 
-          this.uploads[uploadIndex].variant = 'bg-green-400';
-          this.uploads[uploadIndex].icon = 'fas fa-check';
-          this.uploads[uploadIndex].textClass = 'text-green-400';
+          uploads[uploadIndex].variant = 'bg-green-400';
+          uploads[uploadIndex].icon = 'fas fa-check';
+          uploads[uploadIndex].textClass = 'text-green-400';
         });
       });
-    },
-    beforeUnmount() {
-      this.uploads.forEach((upload) => {
-        upload.task.cancel();
-      });
-    },
-    cancelUploads() {
-      this.uploads.forEach((upload) => {
-        upload.task.cancel();
-      });
-    },
+    };
+
+    return {
+      isDragOver,
+      uploads,
+      onBeforeMount,
+      cancelUploads,
+      upload,
+    };
+  },
+  methods: {
+    // upload($event) {
+    //   this.isDragOver = false;
+
+    //   const files = $event.dataTransfer
+    //     ? [...$event.dataTransfer.files]
+    //     : [...$event.target.files];
+
+    //   files.forEach((file) => {
+    //     if (file.type !== 'audio/mpeg') {
+    //       return;
+    //     }
+
+    //     if (!navigator.onLine) {
+    //       this.uploads.push({
+    //         task: {},
+    //         currentProgress: 100,
+    //         name: file.name,
+    //         variant: 'bg-red-400',
+    //         icon: 'fas fa-times',
+    //         textClass: 'text-red-400',
+    //       });
+    //       return;
+    //     }
+
+    //     const storageRef = storage.ref();
+    //     const songsRef = storageRef.child(`songs/${file.name}`);
+    //     const task = songsRef.put(file);
+
+    //     const uploadIndex = this.uploads.push({
+    //       task,
+    //       currentProgress: 0,
+    //       name: file.name,
+    //       variant: 'bg-blue-400',
+    //       icon: 'fas fa-spinner fa-spin',
+    //       textClass: '',
+    //     }) - 1;
+
+    //     task.on('state_changed', (snapshot) => {
+    //       const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    //       this.uploads[uploadIndex].currentProgress = progress;
+    //     },
+    //     // On save error
+    //     (error) => {
+    //       this.uploads[uploadIndex].variant = 'bg-red-400';
+    //       this.uploads[uploadIndex].icon = 'fas fa-times';
+    //       this.uploads[uploadIndex].textClass = 'text-red-400';
+    //       console.log(error);
+    //     },
+    //     // On save success
+    //     async () => {
+    //       const song = {
+    //         uid: auth.currentUser?.uid,
+    //         displayName: auth.currentUser?.displayName,
+    //         originalName: task.snapshot.ref.name,
+    //         modifiedName: task.snapshot.ref.name,
+    //         genre: '',
+    //         commentCount: 0,
+    //         url: null,
+    //       } as {
+    //         uid: string;
+    //         displayName: string;
+    //         originalName: string;
+    //         modifiedName: string;
+    //         genre: string;
+    //         commentCount: number;
+    //         url: null | Promise<any>
+    //       };
+
+    //       try {
+    //         song.url = await task.snapshot.ref.getDownloadURL();
+    //         const songRef = await songsCollection.add(song);
+    //         const songSnapshot = await songRef.get();
+
+    //         this.addSong(songSnapshot);
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+
+    //       this.uploads[uploadIndex].variant = 'bg-green-400';
+    //       this.uploads[uploadIndex].icon = 'fas fa-check';
+    //       this.uploads[uploadIndex].textClass = 'text-green-400';
+    //     });
+    //   });
+    // },
   },
 });
 </script>

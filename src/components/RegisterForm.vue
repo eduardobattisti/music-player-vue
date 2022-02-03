@@ -132,7 +132,7 @@
         tag="label"
       >
         <a href="#">
-          {{ $t('register.TOS') }}
+          {{ t('register.TOS') }}
         </a>
       </i18n-t>
       <ErrorMessage
@@ -152,50 +152,64 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
+import { IRegisterForm } from '@/models/components/RegisterForm';
 
 export default defineComponent({
   name: 'RegisterForm',
-  data() {
-    return {
-      tab: 'login',
-      schema: {
-        name: 'required|min:3|max:100|alpha_spaces',
-        email: 'required|min:3|max:100|email',
-        age: 'required|min_value:18|max_value:100',
-        password: 'required|min:3|max:100',
-        confirm_password: 'passwords_mismatch:@password',
-        country: 'required|country_excluded:Antarctica',
-        tos: 'tos|',
-      },
-      userData: {
-        country: 'USA',
-      },
-      regInSubmission: false,
-      regShowAlert: false,
-      regAlertVariant: 'bg-blue-500',
-      regAlertMsg: 'Please wait! Your account is being created!',
-    };
-  },
-  methods: {
-    async register(values) {
-      this.regShowAlert = true;
-      this.regInSubmission = true;
-      this.regAlertVariant = 'bg-blue-500';
-      this.regAlertMsg = 'Please wait! Your account is being created!';
+  setup() {
+    const { t } = useI18n();
+    const store = useStore();
+    const tab = ref('login');
+    const schema = reactive({
+      name: 'required|min:3|max:100|alpha_spaces',
+      email: 'required|min:3|max:100|email',
+      age: 'required|min_value:18|max_value:100',
+      password: 'required|min:3|max:100',
+      confirm_password: 'passwords_mismatch:@password',
+      country: 'required|country_excluded:Antarctica',
+      tos: 'tos|',
+    });
+    const userData = reactive({
+      country: 'USA',
+    });
+    const regInSubmission = ref(false);
+    const regShowAlert = ref(false);
+    const regAlertVariant = ref('bg-blue-500');
+    const regAlertMsg = ref('Please wait! Your account is being created!');
+
+    const register = async (values: IRegisterForm): Promise<void> => {
+      regShowAlert.value = true;
+      regInSubmission.value = true;
+      regAlertVariant.value = 'bg-blue-500';
+      regAlertMsg.value = 'Please wait! Your account is being created!';
       try {
-        await this.$store.dispatch('register', values);
+        await store.dispatch('register', values);
       } catch (error) {
-        this.regInSubmission = false;
-        this.regAlertVariant = 'bg-red-500';
-        this.regAlertMsg = 'An unexpected error occured. Please try again later.';
+        regInSubmission.value = false;
+        regAlertVariant.value = 'bg-red-500';
+        regAlertMsg.value = 'An unexpected error occurred. Please try again later.';
         return;
       }
 
-      this.regAlertVariant = 'bg-green-500';
-      this.regAlertMsg = 'Success! Your account has been created.';
+      regAlertVariant.value = 'bg-green-500';
+      regAlertMsg.value = 'Success! Your account has been created.';
       window.location.reload();
-    },
+    };
+
+    return {
+      t,
+      tab,
+      schema,
+      userData,
+      regInSubmission,
+      regShowAlert,
+      regAlertVariant,
+      regAlertMsg,
+      register,
+    };
   },
 });
 </script>

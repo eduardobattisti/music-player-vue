@@ -9,7 +9,7 @@
       <div class="container mx-auto">
         <div class="text-white main-header-content">
           <h1 class="font-bold text-5xl mb-5">
-            {{ $t('home.listen') }}
+            {{ t('home.listen') }}
           </h1>
           <p class="w-full md:w-8/12 mx-auto">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus et dolor mollis,
@@ -48,6 +48,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { songsCollection } from '@/includes/firebase';
 import AppSongItem from '@/components/SongItem.vue';
 import IconSecondary from '@/directives/icon-secondary';
@@ -56,6 +57,10 @@ export default defineComponent({
   name: 'Home',
   components: {
     AppSongItem,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {

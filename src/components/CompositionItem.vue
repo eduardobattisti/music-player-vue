@@ -67,56 +67,70 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script  lang="ts">
+import {
+  defineComponent, ref, reactive, toRefs,
+} from 'vue';
 import { songsCollection, storage } from '@/includes/firebase';
 
 export default defineComponent({
   name: 'CompositionItem',
-  data() {
-    return {
-      showForm: false,
-      schema: {
-        modifiedName: 'required',
-        genre: 'alpha_spaces',
-      },
-      inSubmission: false,
-      showAlert: false,
-      alertVariant: 'bg-blue-500',
-      alertMessage: 'Please wait! Updating song info.',
-    };
-  },
-  methods: {
-    async edit(values) {
-      this.inSubmission = true;
-      this.showAlert = true;
-      this.alertVariant = 'bg-blue-500';
-      this.alertMessage = 'Please wait! Updating song info.';
+  setup(props) {
+    const showForm = ref(false);
+    const schema = reactive({
+      modifiedName: 'required',
+      genre: 'alpha_spaces',
+    });
+    const inSubmission = ref(false);
+    const showAlert = ref(false);
+    const alertVariant = ref('bg-blue-500');
+    const alertMessage = ref('Please wait! Updating song info.');
+
+    const { song, index, removeSong } = toRefs(props);
+
+    async function edit(values) {
+      inSubmission.value = true;
+      showAlert.value = true;
+      alertVariant.value = 'bg-blue-500';
+      alertMessage.value = 'Please wait! Updating song info.';
 
       try {
-        await songsCollection.doc(this.song.docID).update(values);
+        await songsCollection.doc(song.value.docID).update(values);
       } catch (error) {
-        this.inSubmission = false;
-        this.alertVariant = 'bg-red-500';
-        this.alertMessage = 'Something went wrong! Try again later.';
+        inSubmission.value = false;
+        alertVariant.value = 'bg-red-500';
+        alertMessage.value = 'Something went wrong! Try again later.';
       }
 
-      this.updateSong(this.index, values);
-      this.updateUnsavedFlag(false);
+      props.updateSong(index, values);
+      props.updateUnsavedFlag(false);
 
-      this.inSubmission = false;
-      this.alertVariant = 'bg-green-500';
-      this.alertMessage = 'Success!';
-    },
-    async deleteSong() {
+      inSubmission.value = false;
+      alertVariant.value = 'bg-green-500';
+      alertMessage.value = 'Success!';
+    }
+
+    async function deleteSong() {
       const storageRef = storage.ref();
-      const songRef = storageRef.child(`songs/${this.song.originalName}`);
+      const songRef = storageRef.child(`songs/${song.value.originalName}`);
 
       await songRef.delete();
-      await songsCollection.doc(this.song.docID).delete();
+      await songsCollection.doc(song.value.docID).delete();
 
-      this.removeSong(this.index);
-    },
+      removeSong.value(index);
+    }
+
+    return {
+      showForm,
+      schema,
+      inSubmission,
+      showAlert,
+      alertVariant,
+      alertMessage,
+      edit,
+      deleteSong,
+
+    };
   },
   props: {
     song: {

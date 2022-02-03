@@ -49,22 +49,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { computed, defineComponent, toRefs } from 'vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'Player',
-  methods: {
-    ...mapActions(['toggleAudio', 'updateSeek']),
-  },
-  computed: {
-    ...mapGetters(['playing']),
-    ...mapState({
-      seek: (state: any) => state.player.seek,
-      duration: (state: any) => state.player.duration,
-      playerProgress: (state: any) => state.player.playerProgress,
-      currentSong: (state: any) => state.player.currentSong,
-    }),
+  setup() {
+    const store = useStore();
+    const toggleAudio = () => store.dispatch('toggleAudio');
+    const updateSeek = () => store.dispatch('updateSeek');
+
+    const playing = computed(() => store.getters.playing);
+    const {
+      seek, duration, playerProgress, currentSong,
+    } = toRefs(store.state.player);
+
+    return {
+      toggleAudio,
+      updateSeek,
+      playing,
+      seek,
+      duration,
+      playerProgress,
+      currentSong,
+    };
   },
 });
 </script>

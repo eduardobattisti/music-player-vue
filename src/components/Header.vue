@@ -68,30 +68,41 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapMutations, mapState } from 'vuex';
+import { defineComponent, computed, toRef } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'Header',
-  methods: {
-    ...mapMutations(['toggleAuthModal']),
-    signOut() {
-      this.$store.dispatch('signOut');
-      if (this.$route.meta.requiresAuth) {
-        this.$router.push({ name: 'home' });
+  setup() {
+    const store = useStore();
+    const route = useRoute();
+    const router = useRouter();
+    const i18n = useI18n();
+    const authState = store.state.auth;
+
+    const locale = toRef(i18n, 'locale');
+
+    const signOut = (): void => {
+      store.dispatch('signOut');
+      if (route.meta.requiresAuth) {
+        router.push({ name: 'home' });
       }
-    },
-    changeLocale() {
-      this.$i18n.locale = this.$i18n.locale === 'fr' ? 'en' : 'fr';
-    },
-  },
-  computed: {
-    ...mapState({
-      userLoggedIn: (state: any) => state.auth.userLoggedIn,
-    }),
-    currentLocale() {
-      return this.$i18n.locale === 'fr' ? 'French' : 'English';
-    },
+    };
+
+    const toggleAuthModal = (): void => store.commit('toggleAuthModal');
+
+    const changeLocale = (): void => {
+      i18n.locale = computed((): string => (locale.value === 'fr' ? 'en' : 'fr'));
+    };
+
+    const currentLocale = computed(() => (locale.value === 'fr' ? 'French' : 'English'));
+    const userLoggedIn = computed(() => authState.userLoggedIn);
+
+    return {
+      signOut, changeLocale, toggleAuthModal, currentLocale, userLoggedIn,
+    };
   },
 });
 </script>

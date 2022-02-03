@@ -67,8 +67,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { mapState, mapMutations } from 'vuex';
+import { defineComponent, ref, computed } from 'vue';
+import { useStore } from 'vuex';
 import AppLoginForm from '@/components/LoginForm.vue';
 import AppRegisterForm from '@/components/RegisterForm.vue';
 
@@ -78,18 +78,18 @@ export default defineComponent({
     AppLoginForm,
     AppRegisterForm,
   },
-  data() {
+  setup() {
+    const tab = ref('login');
+    const store = useStore();
+    const authState = store.state.auth;
+    const toggleAuthModal = () => store.commit('toggleAuthModal');
+    const authModalShow = computed(() => authState.authModalShow);
+
     return {
-      tab: 'login',
+      tab,
+      toggleAuthModal,
+      authModalShow,
     };
-  },
-  methods: {
-    ...mapMutations(['toggleAuthModal']),
-  },
-  computed: {
-    ...mapState({
-      authModalShow: (state: any) => state.auth.authModalShow,
-    }),
   },
 });
 </script>

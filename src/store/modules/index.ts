@@ -1,7 +1,7 @@
 import camelCase from 'lodash/camelCase';
 
 const requireModule = require.context(
-  '.', false, /\.ts$/,
+  '.', true, /\.ts$/,
 );
 
 const modules = {};
@@ -9,7 +9,7 @@ const modules = {};
 requireModule.keys().forEach((fileName) => {
   if (fileName !== './index.ts') {
     const moduleConfig = requireModule(fileName);
-    const moduleName = camelCase(fileName.replace(/(\.\/|\.ts)/g, ''));
+    const moduleName = camelCase(fileName.replace(/(\.\/|.*\/|\.ts)/g, ''));
     modules[moduleName] = moduleConfig.default || moduleConfig;
   }
 });

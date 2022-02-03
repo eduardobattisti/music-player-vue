@@ -9,7 +9,6 @@ import './assets/tailwind.css';
 import './assets/main.stylus';
 import i18n from './includes/i18n';
 import './registerServiceWorker';
-import GlobalComponents from './includes/_globals';
 import ProgressBar from './includes/progressBar';
 import 'nprogress/nprogress.css';
 
@@ -20,7 +19,6 @@ let app;
 auth.onAuthStateChanged(() => {
   if (!app) {
     app = createApp(App);
-    app.use(GlobalComponents);
     app.use(i18n);
     app.use(store);
     app.use(router);

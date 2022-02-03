@@ -14,7 +14,6 @@ export default {
         _.camelCase(fileName.replace(/^\.\//, '').replace(/\.\w+$/, '')),
       );
 
-      // console.log(fileName, componentName);
       app.component(
         `Base${componentName}`,
         componentConfig.default || componentConfig,

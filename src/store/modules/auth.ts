@@ -7,7 +7,6 @@ export default {
   },
   mutations: {
     toggleAuthModal: (state) => {
-      console.log('aqui');
       state.authModalShow = !state.authModalShow;
     },
     toggleAuth(state): void {
@@ -35,7 +34,7 @@ export default {
 
       commit('toggleAuth');
     },
-    async login({ commit }, payload) {
+    async login({ commit }, payload): Promise<void> {
       const { email, password } = payload;
       await auth.signInWithEmailAndPassword(email, password);
 
@@ -48,7 +47,7 @@ export default {
         commit('toggleAuth');
       }
     },
-    async signOut({ commit }) {
+    async signOut({ commit }): Promise<void> {
       await auth.signOut();
       commit('toggleAuth');
     },

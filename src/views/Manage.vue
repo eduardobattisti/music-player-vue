@@ -9,7 +9,7 @@
         <div class="col-span-2">
           <div class="bg-white rounded border border-gray-200 relative flex flex-col">
             <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
-              <span class="card-title">{{ $t('manage.my_songs') }}</span>
+              <span class="card-title">{{ t('manage.my_songs') }}</span>
               <i class="fa fa-compact-disc float-right text-green-400 text-2xl"></i>
             </div>
             <div class="p-6">
@@ -34,6 +34,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 // import store from '@/store';
+import { useI18n } from 'vue-i18n';
 import AppUpload from '@/components/Upload.vue';
 import CompositionItem from '@/components/CompositionItem.vue';
 import { songsCollection, auth } from '@/includes/firebase';
@@ -43,6 +44,13 @@ export default defineComponent({
   components: {
     AppUpload,
     CompositionItem,
+  },
+  setup() {
+    const { t } = useI18n();
+
+    return {
+      t,
+    };
   },
   data() {
     return {
