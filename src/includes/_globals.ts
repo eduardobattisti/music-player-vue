@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 export default {
-  install(app) {
+  install(app: { component: (arg0: string, arg1: unknown) => void; }): void {
     const baseComponents = require.context(
       '../components/base/',
       false,

@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { songsCollection } from '@/includes/firebase';
 import AppSongItem from '@/components/SongItem.vue';
@@ -58,19 +58,18 @@ export default defineComponent({
   components: {
     AppSongItem,
   },
-  setup() {
-    const { t } = useI18n();
-    return { t };
-  },
-  data() {
-    return {
-      songs: [] as Array<any>,
-      maxPerPage: 25,
-      pendingRequest: false,
-    };
-  },
   directives: {
     'icon-secondary': IconSecondary,
+  },
+  setup() {
+    const { t } = useI18n();
+    const songs = reactive([] as Array<any>);
+    const maxPerPage = ref(25);
+    const pendingRequest = ref(false);
+
+    return {
+      t, songs, maxPerPage, pendingRequest,
+    };
   },
   async created() {
     this.getSongs();

@@ -1,19 +1,18 @@
-export interface IFile {
-  lastModified: number;
-  lastModifiedDate: string;
-  name: string;
-  size: number;
-  type: string;
-  webkitRelativePath: string;
+export interface ISongFile {
+  uid: string | undefined;
+  displayName: string | null | undefined;
+  originalName: string;
+  modifiedName: string;
+  genre: string;
+  commentCount: number;
+  url: null | Promise<unknown>
 }
 
-// export interface IUploadEvent {
-//   dataTransfer: {
-//     files: string;
-//   };
-//   target: {
-//     files: Array<IFile>;
-//   };
-// }
-
-export interface IUploadEvent extends DragEvent, InputEvent { }
+export interface IUploadFile {
+  task: any;
+  currentProgress: number;
+  name: string;
+  variant: string;
+  icon: string;
+  textClass: string;
+}

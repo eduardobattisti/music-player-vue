@@ -27,7 +27,7 @@
           </span>
         </div>
         <!-- Scrub Container  -->
-        <span class="block w-full h-2 rounded m-1 mt-2 bg-gray-200 relative cursor-pointer" @click.prevent="updateSeek">
+        <span class="block w-full h-2 rounded m-1 mt-2 bg-gray-200 relative cursor-pointer" @click.prevent="updateSeek($event)">
           <!-- Player Ball -->
           <span class="absolute top-neg-8 text-gray-800 text-lg"
             :style="{left: playerProgress}">
@@ -57,7 +57,7 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const toggleAudio = () => store.dispatch('toggleAudio');
-    const updateSeek = () => store.dispatch('updateSeek');
+    const updateSeek = ($event: MouseEvent) => store.dispatch('updateSeek', $event);
 
     const playing = computed(() => store.getters.playing);
     const {

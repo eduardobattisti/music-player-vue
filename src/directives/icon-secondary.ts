@@ -1,5 +1,5 @@
 export default {
-  beforeMount(el: HTMLElement, binding): void {
+  beforeMount(el: HTMLElement, binding: { value: { icon: string; right: boolean; }; }): void {
     let iconClass = `fa fa-${binding.value.icon} text-green-400 text-2xl`;
 
     if (binding.value.right) {

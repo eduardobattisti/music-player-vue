@@ -1,4 +1,5 @@
 import { auth, usersCollection } from '@/includes/firebase';
+import { IAuthModule } from '@/models/store/auth';
 
 export default {
   state: {
@@ -14,7 +15,7 @@ export default {
     },
   },
   actions: {
-    async register({ commit }, payload): Promise<void> {
+    async register({ commit }, payload) {
       const {
         email, name, age, password, country,
       } = payload;
@@ -34,7 +35,7 @@ export default {
 
       commit('toggleAuth');
     },
-    async login({ commit }, payload): Promise<void> {
+    async login({ commit }, payload) {
       const { email, password } = payload;
       await auth.signInWithEmailAndPassword(email, password);
 
@@ -47,9 +48,9 @@ export default {
         commit('toggleAuth');
       }
     },
-    async signOut({ commit }): Promise<void> {
+    async signOut({ commit }) {
       await auth.signOut();
       commit('toggleAuth');
     },
   },
-};
+} as IAuthModule;
